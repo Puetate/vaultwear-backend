@@ -54,6 +54,7 @@ export const order = pgTable("order", {
   deliveryAddress: text().notNull(),
   includeDelivery: boolean().default(false),
   total: decimal(),
+  completed: boolean().default(false),
   ...baseFields
 });
 
@@ -81,14 +82,17 @@ export const orderDetail = pgTable("orderDetail", {
 });
 
 export const historicOrderDetail = pgTable("historicOrderDetail", {
-  orderDetailID: serial().primaryKey(),
+  historicOderDetailID: serial().primaryKey(),
+  orderDetailID: integer(),
+  description: text(),
   orderID: integer(),
   contentTypeID: integer(),
-  quantity: integer(),
+  quantity: integer().notNull(),
   qrJson: json(),
   urlContent: text(),
-  price: decimal(),
-  orderDetailCode: text(),
+  price: decimal().notNull(),
+  orderDetailCode: text().notNull(),
+  historicType: text().notNull(),
   ...baseFields
 });
 
