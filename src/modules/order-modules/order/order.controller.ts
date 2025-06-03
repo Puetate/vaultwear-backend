@@ -1,5 +1,5 @@
 import { PaginationDto } from "@commons/dto";
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, Put, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { CreateOrderWithDetailsDto } from "./dto/create-with-details.dto";
@@ -43,7 +43,7 @@ export class OrderController {
     return this.orderService.update(+orderID, updateOrderDto);
   }
 
-  @Delete(":orderID")
+  @Patch("toggle-status/:orderID")
   toggleStatus(@Param("orderID") orderID: string) {
     return this.orderService.toggleStatus(+orderID);
   }

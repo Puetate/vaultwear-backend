@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { ContentTypeService } from "./content-type.service";
 import { CreateContentTypeDto } from "./dto/create-content-type.dto";
@@ -30,7 +30,7 @@ export class ContentTypeController {
     return this.contentTypeService.update(+contentTypeID, updateContentTypeDto);
   }
 
-  @Delete(":contentTypeID")
+  @Patch("toggle-status/:contentTypeID")
   toggleStatus(@Param("contentTypeID") contentTypeID: string) {
     return this.contentTypeService.toggleStatus(+contentTypeID);
   }
