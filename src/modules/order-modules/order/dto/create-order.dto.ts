@@ -42,5 +42,10 @@ export class CreateOrderDto {
   @ApiProperty()
   @IsOptional()
   @IsBoolean()
+  completed?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
   status?: boolean;
 }

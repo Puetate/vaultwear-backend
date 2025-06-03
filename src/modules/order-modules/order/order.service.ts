@@ -100,6 +100,7 @@ export class OrderService {
         includeDelivery: sql`CASE WHEN ${order.includeDelivery} THEN 'SI' ELSE 'NO' END`.as(
           "includeDelivery"
         ),
+        completed: sql`CASE WHEN ${order.completed} THEN 'COMPLETADA' ELSE 'PENDIENTE' END`.as("completed"),
         status: sql`CASE WHEN ${order.status} THEN 'ACTIVO' ELSE 'INACTIVO' END`.as("status"),
         person: {
           personID: person.personID,
