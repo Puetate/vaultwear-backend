@@ -1,5 +1,5 @@
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
-import { contentType, orderDetail } from "@modules/drizzle/schema";
+import { contentType, historicOrderDetail, orderDetail } from "@modules/drizzle/schema";
 import { TransactionHost } from "@nestjs-cls/transactional";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { eq } from "drizzle-orm";
@@ -10,8 +10,15 @@ import { UpdateOrderDetailDto } from "./dto/update-order-detail.dto";
 export class OrderDetailService {
   constructor(private readonly txHost: TransactionHost<DrizzleAdapter>) {}
 
-  create(createOrderDetailDto: CreateOrderDetailDto) {
-    return this.txHost.tx.insert(orderDetail).values(createOrderDetailDto).returning();
+  async create(createOrderDetailDto: CreateOrderDetailDto) {
+    const createOrderDetail = await this.txHost.tx
+      .insert(orderDetail)
+      .values(createOrderDetailDto)
+      .returning();
+    await this.txHost.tx
+      .insert(historicOrderDetail)
+      .values({ ...createOrderDetailDto, historicType: "CREADO" });
+    return createOrderDetail;
   }
 
   async findOne(orderDetailID: number) {
@@ -31,6 +38,12 @@ export class OrderDetailService {
     });
   }
 
+  findHistoricByOrderDetail(orderDetailID: number) {
+    return this.txHost.tx.query.historicOrderDetail.findMany({
+      where: eq(historicOrderDetail.orderDetailID, orderDetailID)
+    });
+  }
+
   findByCode(orderDetailCode: string) {
     return this.txHost.tx
       .select({
@@ -44,11 +57,15 @@ export class OrderDetailService {
 
   async update(orderDetailID: number, updateOrderDetailDto: UpdateOrderDetailDto) {
     await this.findOne(orderDetailID);
-    return this.txHost.tx
+    const updatedOrderDetail = await this.txHost.tx
       .update(orderDetail)
       .set(updateOrderDetailDto)
       .where(eq(orderDetail.orderDetailID, orderDetailID))
       .returning();
+    await this.txHost.tx
+      .insert(historicOrderDetail)
+      .values({ ...updatedOrderDetail[0], historicType: "ACTUALIZADO`" });
+    return updatedOrderDetail;
   }
 
   async toggleStatus(orderDetailID: number) {
