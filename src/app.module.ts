@@ -13,6 +13,7 @@ import { OrderModule } from "./modules/order-modules/order/order.module";
 import { PersonModule } from "./modules/user-modules/person/person.module";
 import { RoleModule } from "./modules/user-modules/role/role.module";
 import { UserModule } from "./modules/user-modules/user/user.module";
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { UserModule } from "./modules/user-modules/user/user.module";
     RoleModule,
     OrderModule,
     OrderDetailModule,
-    ContentTypeModule
+    ContentTypeModule,
+    ReportsModule
   ],
   controllers: [],
   providers: [
