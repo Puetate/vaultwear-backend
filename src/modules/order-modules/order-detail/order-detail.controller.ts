@@ -1,3 +1,4 @@
+import { Public } from "@commons/decorators";
 import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CreateOrderDetailDto } from "./dto/create-order-detail.dto";
@@ -25,6 +26,7 @@ export class OrderDetailController {
     return this.orderDetailService.findHistoricByOrderDetail(+orderDetailID);
   }
 
+  @Public()
   @Get("code/:orderDetailCode")
   findByCode(@Param("orderDetailCode") orderDetailCode: string) {
     return this.orderDetailService.findByCode(orderDetailCode);
