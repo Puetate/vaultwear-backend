@@ -52,7 +52,8 @@ export class OrderDetailService {
       })
       .from(orderDetail)
       .innerJoin(contentType, eq(orderDetail.contentTypeID, contentType.contentTypeID))
-      .where(eq(orderDetail.orderDetailCode, orderDetailCode));
+      .where(eq(orderDetail.orderDetailCode, orderDetailCode))
+      .limit(1);
 
     if (foundDetail.length > 0) {
       return foundDetail[0];
