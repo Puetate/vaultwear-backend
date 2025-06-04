@@ -44,8 +44,8 @@ export class OrderDetailService {
     });
   }
 
-  findByCode(orderDetailCode: string) {
-    return this.txHost.tx
+  async findByCode(orderDetailCode: string) {
+    const foundDetail = await this.txHost.tx
       .select({
         urlContent: orderDetail.urlContent,
         contentTypeName: contentType.contentTypeName
@@ -53,6 +53,11 @@ export class OrderDetailService {
       .from(orderDetail)
       .innerJoin(contentType, eq(orderDetail.contentTypeID, contentType.contentTypeID))
       .where(eq(orderDetail.orderDetailCode, orderDetailCode));
+
+    if (foundDetail.length > 0) {
+      return foundDetail[0];
+    }
+    return null;
   }
 
   async update(orderDetailID: number, updateOrderDetailDto: UpdateOrderDetailDto) {
