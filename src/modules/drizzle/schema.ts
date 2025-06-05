@@ -70,12 +70,16 @@ export const orderDetail = pgTable("orderDetail", {
   orderID: integer()
     .references(() => order.orderID)
     .notNull(),
-  contentTypeID: integer()
-    .references(() => contentType.contentTypeID)
-    .notNull(),
   quantity: integer().notNull(),
   qrJson: json(),
-  urlContent: text(),
+  contents: json().$type<
+    {
+      contentTypeID: number;
+      contentTypeName: string;
+      urlContent: string;
+      description: string;
+    }[]
+  >(),
   price: decimal().notNull(),
   orderDetailCode: text().notNull().unique(),
   ...baseFields
@@ -83,13 +87,19 @@ export const orderDetail = pgTable("orderDetail", {
 
 export const historicOrderDetail = pgTable("historicOrderDetail", {
   historicOderDetailID: serial().primaryKey(),
-  orderDetailID: integer(),
   description: text(),
+  orderDetailID: integer(),
   orderID: integer(),
-  contentTypeID: integer(),
   quantity: integer().notNull(),
   qrJson: json(),
-  urlContent: text(),
+  contents: json().$type<
+    {
+      contentTypeID: number;
+      contentTypeName: string;
+      urlContent: string;
+      description: string;
+    }[]
+  >(),
   price: decimal().notNull(),
   orderDetailCode: text().notNull(),
   historicType: text().notNull(),
@@ -128,17 +138,9 @@ export const orderRelations = relations(order, ({ one, many }) => ({
   orderDetail: many(orderDetail)
 }));
 
-export const contentTypeRelations = relations(contentType, ({ many }) => ({
-  orderDetail: many(orderDetail)
-}));
-
 export const orderDetailRelations = relations(orderDetail, ({ one }) => ({
   order: one(order, {
     fields: [orderDetail.orderID],
     references: [order.orderID]
-  }),
-  contentType: one(contentType, {
-    fields: [orderDetail.contentTypeID],
-    references: [contentType.contentTypeID]
   })
 }));

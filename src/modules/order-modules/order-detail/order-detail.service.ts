@@ -1,5 +1,5 @@
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
-import { contentType, historicOrderDetail, orderDetail } from "@modules/drizzle/schema";
+import { historicOrderDetail, orderDetail } from "@modules/drizzle/schema";
 import { TransactionHost } from "@nestjs-cls/transactional";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { eq } from "drizzle-orm";
@@ -47,11 +47,9 @@ export class OrderDetailService {
   async findByCode(orderDetailCode: string) {
     const foundDetail = await this.txHost.tx
       .select({
-        urlContent: orderDetail.urlContent,
-        contentTypeName: contentType.contentTypeName
+        contents: orderDetail.contents
       })
       .from(orderDetail)
-      .innerJoin(contentType, eq(orderDetail.contentTypeID, contentType.contentTypeID))
       .where(eq(orderDetail.orderDetailCode, orderDetailCode))
       .limit(1);
 

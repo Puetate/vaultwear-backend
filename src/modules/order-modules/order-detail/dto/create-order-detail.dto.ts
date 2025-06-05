@@ -1,5 +1,6 @@
 import { IsPositiveDecimal } from "@commons/decorators";
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   IsBoolean,
   IsDecimal,
@@ -8,8 +9,29 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-  IsUrl
+  ValidateNested
 } from "class-validator";
+
+export class ContentDto {
+  @ApiProperty()
+  @IsPositive()
+  contentTypeID: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  contentTypeName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  urlContent: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  description: string;
+}
 
 export class CreateOrderDetailDto {
   @ApiProperty()
@@ -17,18 +39,19 @@ export class CreateOrderDetailDto {
   orderID: number;
 
   @ApiProperty()
-  @IsPositive()
-  contentTypeID: number;
+  @IsOptional()
+  @IsString()
+  description: string;
 
   @ApiProperty()
   @IsOptional()
   @IsJSON()
   qrJson?: string;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsUrl()
-  urlContent?: string;
+  @ApiProperty({ type: ContentDto, isArray: true })
+  @ValidateNested({ each: true })
+  @Type(() => ContentDto)
+  contents?: ContentDto[];
 
   @ApiProperty()
   @IsPositive()
@@ -43,11 +66,6 @@ export class CreateOrderDetailDto {
   @IsString()
   @IsNotEmpty()
   orderDetailCode: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  description: string;
 
   @ApiProperty()
   @IsOptional()

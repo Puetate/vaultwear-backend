@@ -2,7 +2,7 @@ import { PaginationDto } from "@commons/dto";
 import { generatePaginatedFilteredData } from "@commons/utils";
 import { jsonAgg } from "@commons/utils/json-agg.util";
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
-import { contentType, order, orderDetail, person } from "@modules/drizzle/schema";
+import { order, orderDetail, person } from "@modules/drizzle/schema";
 import { PersonService } from "@modules/user-modules/person/person.service";
 import { Transactional, TransactionHost } from "@nestjs-cls/transactional";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
@@ -113,14 +113,11 @@ export class OrderService {
         },
         orderDetails: jsonAgg({
           orderDetailID: orderDetail.orderDetailID,
-          contentTypeID: orderDetail.contentTypeID,
-          contentTypeName: contentType.contentTypeName,
           orderDetailCode: orderDetail.orderDetailCode,
-          description: orderDetail.description,
-          urlContent: orderDetail.urlContent,
           qrJson: orderDetail.qrJson,
           quantity: orderDetail.quantity,
-          price: orderDetail.price
+          price: orderDetail.price,
+          contents: orderDetail.contents
         }).as("orderDetails")
       },
       fromTable: order,
@@ -128,7 +125,6 @@ export class OrderService {
         qb
           .innerJoin(person, eq(person.personID, order.personID))
           .innerJoin(orderDetail, eq(order.orderID, orderDetail.orderID))
-          .innerJoin(contentType, eq(orderDetail.contentTypeID, contentType.contentTypeID))
           .groupBy(order.orderID, person.personID),
       filter,
       columnFilters,
