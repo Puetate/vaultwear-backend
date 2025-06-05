@@ -54,7 +54,7 @@ export class OrderDetailService {
       .limit(1);
 
     if (foundDetail.length > 0) {
-      return foundDetail[0];
+      return foundDetail[0].contents;
     }
     return null;
   }
