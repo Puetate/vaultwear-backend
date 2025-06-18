@@ -106,6 +106,36 @@ export const historicOrderDetail = pgTable("historicOrderDetail", {
   ...baseFields
 });
 
+// Loyalty Program
+
+export const loyaltyCard = pgTable("loyaltyCard", {
+  loyaltyCardID: serial().primaryKey(),
+  quantity: integer().notNull().default(8),
+  quantityClaimed: integer().notNull().default(2),
+  startDate: date().notNull(),
+  userID: integer().references(() => user.userID),
+  ...baseFields
+});
+
+export const loyaltyCardDetail = pgTable("loyaltyCardDetail", {
+  loyaltyCardDetailID: serial().primaryKey(),
+  orderDetailID: integer()
+    .references(() => orderDetail.orderDetailID)
+    .notNull(),
+  loyaltyCardID: integer().references(() => loyaltyCard.loyaltyCardID),
+  claimDate: date(),
+  claimCode: text().notNull(),
+  qrJson: json(),
+  ...baseFields
+});
+
+export const giftBox = pgTable("giftBox", {
+  giftBoxID: serial().primaryKey(),
+  endDate: date(),
+  loyaltyCardID: integer().references(() => loyaltyCard.loyaltyCardID),
+  ...baseFields
+});
+
 // Relations - ORM only
 export const personRelations = relations(person, ({ one, many }) => ({
   user: one(user, {
@@ -119,7 +149,7 @@ export const roleRelations = relations(role, ({ many }) => ({
   user: many(user)
 }));
 
-export const userRelations = relations(user, ({ one }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
   person: one(person, {
     fields: [user.userID],
     references: [person.personID]
@@ -127,7 +157,8 @@ export const userRelations = relations(user, ({ one }) => ({
   role: one(role, {
     fields: [user.roleID],
     references: [role.roleID]
-  })
+  }),
+  loyaltyCard: many(loyaltyCard)
 }));
 
 export const orderRelations = relations(order, ({ one, many }) => ({
@@ -142,5 +173,32 @@ export const orderDetailRelations = relations(orderDetail, ({ one }) => ({
   order: one(order, {
     fields: [orderDetail.orderID],
     references: [order.orderID]
+  })
+}));
+
+export const loyaltyCardRelations = relations(loyaltyCard, ({ one, many }) => ({
+  user: one(user, {
+    fields: [loyaltyCard.userID],
+    references: [user.userID]
+  }),
+  loyaltyCardDetail: many(loyaltyCardDetail),
+  giftBox: many(giftBox)
+}));
+
+export const loyaltyCardDetailRelations = relations(loyaltyCardDetail, ({ one }) => ({
+  orderDetail: one(orderDetail, {
+    fields: [loyaltyCardDetail.orderDetailID],
+    references: [orderDetail.orderDetailID]
+  }),
+  loyaltyCard: one(loyaltyCard, {
+    fields: [loyaltyCardDetail.loyaltyCardID],
+    references: [loyaltyCard.loyaltyCardID]
+  })
+}));
+
+export const giftBoxRelations = relations(giftBox, ({ one }) => ({
+  loyaltyCard: one(loyaltyCard, {
+    fields: [giftBox.loyaltyCardID],
+    references: [loyaltyCard.loyaltyCardID]
   })
 }));
