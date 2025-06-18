@@ -1,9 +1,10 @@
-import { Public } from "@commons/decorators";
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { FastifyReply } from "fastify";
 import { AuthService } from "./auth.service";
+import { Public } from "./decorators";
 import { LoginDto } from "./dto/login.dto";
+import { RegisterDto } from "./dto/register.dto";
 import { RefreshAuthGuard } from "./guards/refresh-auth.guard";
 import { AuthRequest } from "./types/auth-request.type";
 
@@ -17,6 +18,12 @@ export class AuthController {
   @Post("login")
   login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: FastifyReply) {
     return this.authService.login(loginDto, res);
+  }
+
+  @Public()
+  @Post("register")
+  register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 
   @Public()
