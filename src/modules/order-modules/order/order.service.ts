@@ -1,8 +1,8 @@
 import { PaginationDto } from "@commons/dto";
-import { generatePaginatedFilteredData } from "@commons/utils";
+import { generatePaginatedFilteredData, jsonBuildObject } from "@commons/utils";
 import { jsonAgg } from "@commons/utils/json-agg.util";
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
-import { order, orderDetail, person } from "@modules/drizzle/schema";
+import { loyaltyCardDetail, order, orderDetail, person } from "@modules/drizzle/schema";
 import { PersonService } from "@modules/user-modules/person/person.service";
 import { Transactional, TransactionHost } from "@nestjs-cls/transactional";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
@@ -114,10 +114,16 @@ export class OrderService {
         orderDetails: jsonAgg({
           orderDetailID: orderDetail.orderDetailID,
           orderDetailCode: orderDetail.orderDetailCode,
+          description: orderDetail.description,
           qrJson: orderDetail.qrJson,
           quantity: orderDetail.quantity,
           price: orderDetail.price,
-          contents: orderDetail.contents
+          contents: orderDetail.contents,
+          loyaltyCardDetail: jsonBuildObject({
+            loyaltyCardDetailID: loyaltyCardDetail.loyaltyCardDetailID,
+            claimCode: loyaltyCardDetail.claimCode,
+            qrJson: loyaltyCardDetail.qrJson
+          })
         }).as("orderDetails")
       },
       fromTable: order,
@@ -125,6 +131,7 @@ export class OrderService {
         qb
           .innerJoin(person, eq(person.personID, order.personID))
           .innerJoin(orderDetail, eq(order.orderID, orderDetail.orderID))
+          .innerJoin(loyaltyCardDetail, eq(loyaltyCardDetail.orderDetailID, orderDetail.orderDetailID))
           .groupBy(order.orderID, person.personID),
       filter,
       columnFilters,

@@ -14,7 +14,11 @@ export class PersonService {
 
   async create(createPersonDto: CreatePersonDto) {
     await this.checkUnique(createPersonDto.identification, createPersonDto.phone);
-    return this.txHost.tx.insert(person).values(createPersonDto).returning();
+    const query = await this.txHost.tx.insert(person).values(createPersonDto).returning();
+    if (query.length === 0) {
+      throw new HttpException("Error al crear la persona", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return query[0];
   }
 
   async findAll(paginationDto: PaginationDto) {

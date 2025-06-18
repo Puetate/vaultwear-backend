@@ -1,3 +1,4 @@
+import { APP_ROLES } from "@commons/constants/app-roles.constant";
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
 import { role } from "@modules/drizzle/schema";
 import { TransactionHost } from "@nestjs-cls/transactional";
@@ -11,7 +12,7 @@ export class RoleService {
   constructor(private readonly txHost: TransactionHost<DrizzleAdapter>) {}
 
   async create(createRoleDto: CreateRoleDto) {
-    const existingRole = await this.findByName(createRoleDto.roleName);
+    const existingRole = await this.findByName(createRoleDto.roleName as keyof typeof APP_ROLES);
     if (existingRole) {
       throw new HttpException("Role already exists", HttpStatus.BAD_REQUEST);
     }
@@ -32,7 +33,7 @@ export class RoleService {
     return foundRole;
   }
 
-  findByName(roleName: string) {
+  findByName(roleName: keyof typeof APP_ROLES) {
     return this.txHost.tx.query.role.findFirst({
       where: eq(role.roleName, roleName)
     });

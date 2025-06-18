@@ -1,6 +1,8 @@
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
 import { historicOrderDetail, orderDetail } from "@modules/drizzle/schema";
-import { TransactionHost } from "@nestjs-cls/transactional";
+import { CreateLoyaltyCardDetailDto } from "@modules/loyalty-modules/loyalty-card-detail/dto/create-loyalty-card-detail.dto";
+import { LoyaltyCardDetailService } from "@modules/loyalty-modules/loyalty-card-detail/loyalty-card-detail.service";
+import { Transactional, TransactionHost } from "@nestjs-cls/transactional";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { eq } from "drizzle-orm";
 import { CreateOrderDetailDto } from "./dto/create-order-detail.dto";
@@ -8,8 +10,12 @@ import { UpdateOrderDetailDto } from "./dto/update-order-detail.dto";
 
 @Injectable()
 export class OrderDetailService {
-  constructor(private readonly txHost: TransactionHost<DrizzleAdapter>) {}
+  constructor(
+    private readonly txHost: TransactionHost<DrizzleAdapter>,
+    private readonly loyaltyCardDetailService: LoyaltyCardDetailService
+  ) {}
 
+  @Transactional()
   async create(createOrderDetailDto: CreateOrderDetailDto) {
     const createOrderDetail = await this.txHost.tx
       .insert(orderDetail)
@@ -18,6 +24,10 @@ export class OrderDetailService {
     await this.txHost.tx
       .insert(historicOrderDetail)
       .values({ ...createOrderDetailDto, historicType: "CREADO" });
+    const loyaltyCardDetailDto: CreateLoyaltyCardDetailDto = {
+      orderDetailID: createOrderDetail[0].orderDetailID
+    };
+    await this.loyaltyCardDetailService.create(loyaltyCardDetailDto);
     return createOrderDetail;
   }
 

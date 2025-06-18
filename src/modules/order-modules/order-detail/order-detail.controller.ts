@@ -1,4 +1,4 @@
-import { Public } from "@commons/decorators";
+import { Public } from "@modules/auth/decorators";
 import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { CreateOrderDetailDto } from "./dto/create-order-detail.dto";

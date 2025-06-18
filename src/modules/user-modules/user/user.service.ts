@@ -25,10 +25,14 @@ export class UserService {
       throw new HttpException("El email del usuario ya se encuentra en uso", HttpStatus.BAD_REQUEST);
     }
     const hashedPassword = await hash(createUserDto.password, 10);
-    return this.txHost.tx
+    const createdUser = await this.txHost.tx
       .insert(user)
       .values({ ...createUserDto, password: hashedPassword })
       .returning();
+    if (createdUser.length === 0) {
+      throw new HttpException("Error al crear el usuario", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    return createdUser[0];
   }
 
   @Transactional()
@@ -39,7 +43,7 @@ export class UserService {
       personID = person.personID;
     } else {
       const createdPerson = await this.personService.create(createUserWithPersonDto.person);
-      personID = createdPerson[0].personID;
+      personID = createdPerson?.personID;
     }
     const createUserDto: CreateUserDto = {
       ...userDto,
