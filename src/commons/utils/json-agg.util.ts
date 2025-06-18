@@ -1,5 +1,6 @@
-import { SelectedFields, SQL, sql } from "drizzle-orm";
+import { SelectedFields, sql } from "drizzle-orm";
 import { PgColumn } from "drizzle-orm/pg-core";
+import { jsonBuildObject } from "./json-build-object.util";
 /**
  * It should be used with group by
  * @param object - The object to be converted to JSON
@@ -7,18 +8,7 @@ import { PgColumn } from "drizzle-orm/pg-core";
  * @returns - A SQL expression that represents the JSON aggregation of the object
  */
 export function jsonAgg(object: Record<string, PgColumn<any>> | SelectedFields<any, any>) {
-  const chunks: SQL[] = [];
-  const text: string[] = [];
-  for (const [key, value] of Object.entries(object)) {
-    if (chunks.length > 0) {
-      chunks.push(sql.raw(`,`));
-    }
-    chunks.push(sql.raw(`'${key}',`));
-    chunks.push(sql`${value}`);
-  }
   return sql`json_agg(
-    json_build_object(
-        ${sql.join(chunks)}
-    )
+    ${jsonBuildObject(object)}
 )`;
 }
