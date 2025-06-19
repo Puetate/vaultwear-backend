@@ -18,6 +18,9 @@ import { ReportsModule } from "./modules/reports/reports.module";
 import { PersonModule } from "./modules/user-modules/person/person.module";
 import { RoleModule } from "./modules/user-modules/role/role.module";
 import { UserModule } from "./modules/user-modules/user/user.module";
+import { RewardModule } from './modules/reward-modules/reward/reward.module';
+import { RewardOrderModule } from './modules/reward-modules/reward-order/reward-order.module';
+import { RewardQrModule } from './modules/reward-modules/reward-qr/reward-qr.module';
 
 @Module({
   imports: [
@@ -41,7 +44,10 @@ import { UserModule } from "./modules/user-modules/user/user.module";
     ReportsModule,
     LoyaltyCardModule,
     LoyaltyCardDetailModule,
-    GiftBoxModule
+    GiftBoxModule,
+    RewardModule,
+    RewardOrderModule,
+    RewardQrModule
   ],
   controllers: [],
   providers: [

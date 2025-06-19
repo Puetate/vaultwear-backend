@@ -3,6 +3,8 @@ import { dayjs } from "@commons/libs";
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
 import { CreateLoyaltyCardDto } from "@modules/loyalty-modules/loyalty-card/dto/create-loyalty-card.dto";
 import { LoyaltyCardService } from "@modules/loyalty-modules/loyalty-card/loyalty-card.service";
+import { CreateRewardDto } from "@modules/reward-modules/reward/dto/create-reward.dto";
+import { RewardService } from "@modules/reward-modules/reward/reward.service";
 import { PersonService } from "@modules/user-modules/person/person.service";
 import { RoleService } from "@modules/user-modules/role/role.service";
 import { CreateUserWithPersonDto } from "@modules/user-modules/user/dto/create-with-person.dto";
@@ -25,7 +27,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly personService: PersonService,
     private readonly roleModule: RoleService,
-    private readonly loyaltyCardService: LoyaltyCardService
+    private readonly loyaltyCardService: LoyaltyCardService,
+    private readonly rewardService: RewardService
   ) {}
 
   async login(loginDto: LoginDto, res: FastifyReply) {
@@ -81,8 +84,9 @@ export class AuthService {
       userID: createdUser.userID,
       startDate: dayjs().toISOString()
     };
+    const rewardDto: CreateRewardDto = { userID: createdUser.userID };
     await this.loyaltyCardService.create(loyaltyCardDto);
-
+    await this.rewardService.create(rewardDto);
     return { message: "Usuario registrado exitosamente" };
   }
 

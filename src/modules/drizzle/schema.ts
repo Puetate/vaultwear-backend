@@ -136,6 +136,22 @@ export const giftBox = pgTable("giftBox", {
   ...baseFields
 });
 
+// Reward Program
+
+export const reward = pgTable("reward", {
+  rewardID: serial().primaryKey(),
+  userID: integer()
+    .references(() => user.userID)
+    .notNull(),
+  maxDiscount: integer().notNull().default(15),
+  discount: integer().notNull().default(5),
+  jsonReward: json().$type<{
+    date: string;
+    rewardQrID: number;
+  }>(),
+  ...baseFields
+});
+
 // Relations - ORM only
 export const personRelations = relations(person, ({ one, many }) => ({
   user: one(user, {
