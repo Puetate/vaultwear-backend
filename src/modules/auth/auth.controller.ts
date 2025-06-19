@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Put, Req, Res, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { FastifyReply } from "fastify";
 import { AuthService } from "./auth.service";
@@ -23,6 +23,12 @@ export class AuthController {
   @Public()
   @Post("register")
   register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
+
+  @Public()
+  @Put("register")
+  updateRegister(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 

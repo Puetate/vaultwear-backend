@@ -1,47 +1,17 @@
 import { CreatePersonDto } from "@modules/user-modules/person/dto/create-person.dto";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, OmitType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsPositive,
-  IsString,
-  MaxLength,
-  ValidateNested
-} from "class-validator";
-
-class UserPersonDto extends CreatePersonDto {
-  @ApiProperty()
-  @IsOptional()
-  @IsPositive()
-  personID?: number;
-}
-
-class UserRoleDto {
-  @ApiProperty()
-  @IsPositive()
-  roleID: number;
-}
+import { ValidateNested } from "class-validator";
+import { CreateUserDto } from "./create-user.dto";
 
 export class CreateUserWithPersonDto {
-  @ApiProperty()
-  @IsEmail()
-  email: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(8)
-  password: string;
-
-  @ApiProperty({ type: UserPersonDto })
+  @ApiProperty({ type: OmitType(CreateUserDto, ["personID"]) })
+  @Type(() => OmitType(CreateUserDto, ["personID"]))
   @ValidateNested()
-  @Type(() => UserPersonDto)
-  person: UserPersonDto;
+  user: Omit<CreateUserDto, "personID">;
 
-  @ApiProperty({ type: UserRoleDto })
+  @ApiProperty({ type: CreatePersonDto })
   @ValidateNested()
-  @Type(() => UserRoleDto)
-  role: UserRoleDto;
+  @Type(() => CreatePersonDto)
+  person: CreatePersonDto;
 }

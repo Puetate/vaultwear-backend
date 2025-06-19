@@ -46,8 +46,8 @@ export const user = pgTable("user", {
 
 export const order = pgTable("order", {
   orderID: serial().primaryKey(),
-  personID: integer()
-    .references(() => person.personID)
+  userID: integer()
+    .references(() => user.userID)
     .notNull(),
   orderDate: date().notNull(),
   deliveryDate: date().notNull(),
@@ -141,8 +141,7 @@ export const personRelations = relations(person, ({ one, many }) => ({
   user: one(user, {
     fields: [person.personID],
     references: [user.personID]
-  }),
-  order: many(order)
+  })
 }));
 
 export const roleRelations = relations(role, ({ many }) => ({
@@ -158,13 +157,14 @@ export const userRelations = relations(user, ({ one, many }) => ({
     fields: [user.roleID],
     references: [role.roleID]
   }),
+  order: many(order),
   loyaltyCard: many(loyaltyCard)
 }));
 
 export const orderRelations = relations(order, ({ one, many }) => ({
-  person: one(person, {
-    fields: [order.personID],
-    references: [person.personID]
+  user: one(user, {
+    fields: [order.userID],
+    references: [user.userID]
   }),
   orderDetail: many(orderDetail)
 }));

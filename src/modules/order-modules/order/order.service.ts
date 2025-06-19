@@ -2,7 +2,7 @@ import { PaginationDto } from "@commons/dto";
 import { generatePaginatedFilteredData, jsonBuildObject } from "@commons/utils";
 import { jsonAgg } from "@commons/utils/json-agg.util";
 import { DrizzleAdapter } from "@modules/drizzle/drizzle.provider";
-import { loyaltyCardDetail, order, orderDetail, person } from "@modules/drizzle/schema";
+import { loyaltyCardDetail, order, orderDetail, person, user } from "@modules/drizzle/schema";
 import { PersonService } from "@modules/user-modules/person/person.service";
 import { Transactional, TransactionHost } from "@nestjs-cls/transactional";
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
@@ -29,7 +29,7 @@ export class OrderService {
 
   @Transactional()
   async createWithDetails(createOrderWithDetailsDto: CreateOrderWithDetailsDto) {
-    const { order, details, person } = createOrderWithDetailsDto;
+    const { order, details } = createOrderWithDetailsDto;
     let total = new Decimal(0);
     details.forEach((detail) => {
       const price = new Decimal(detail.price);
@@ -37,13 +37,6 @@ export class OrderService {
       total = total.add(price.times(quantity));
     });
     order.total = total.toString();
-    let personID: number;
-    if (person.personID) {
-      personID = person.personID;
-    } else {
-      personID = (await this.personService.create(person))[0].personID;
-    }
-    order.personID = personID;
     const createOrder = await this.create(order);
     const detailsPromise: Promise<object>[] = [];
     for (let i = 0; i < details.length; i++) {
@@ -102,6 +95,10 @@ export class OrderService {
         ),
         completed: sql`CASE WHEN ${order.completed} THEN 'COMPLETADA' ELSE 'PENDIENTE' END`.as("completed"),
         status: sql`CASE WHEN ${order.status} THEN 'ACTIVO' ELSE 'INACTIVO' END`.as("status"),
+        user: {
+          userID: user.userID,
+          email: user.email
+        },
         person: {
           personID: person.personID,
           fullName: sql`${person.name} || ' ' || ${person.surname}`.as("fullName"),
@@ -129,10 +126,11 @@ export class OrderService {
       fromTable: order,
       aggregateFunction: (qb) =>
         qb
-          .innerJoin(person, eq(person.personID, order.personID))
+          .innerJoin(user, eq(user.userID, order.userID))
+          .innerJoin(person, eq(person.personID, user.personID))
           .innerJoin(orderDetail, eq(order.orderID, orderDetail.orderID))
           .innerJoin(loyaltyCardDetail, eq(loyaltyCardDetail.orderDetailID, orderDetail.orderDetailID))
-          .groupBy(order.orderID, person.personID),
+          .groupBy(order.orderID, user.userID, person.personID),
       filter,
       columnFilters,
       limit: size,
@@ -150,7 +148,11 @@ export class OrderService {
   async findOne(orderID: number) {
     const foundOrder = await this.txHost.tx.query.order.findFirst({
       with: {
-        person: true,
+        user: {
+          with: {
+            person: true
+          }
+        },
         orderDetail: true
       },
       where: eq(order.orderID, orderID)

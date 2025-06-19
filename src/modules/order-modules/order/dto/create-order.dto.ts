@@ -13,7 +13,7 @@ import {
 export class CreateOrderDto {
   @ApiProperty()
   @IsPositive()
-  personID: number;
+  userID: number;
 
   @ApiProperty()
   @IsDateString()

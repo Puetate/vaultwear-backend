@@ -85,10 +85,13 @@ export class PersonService {
   }
 
   async update(personID: number, updatePersonDto: UpdatePersonDto) {
-    if (updatePersonDto.identification || updatePersonDto.phone) {
+    const foundPerson = await this.findOne(personID);
+    if (
+      foundPerson.identification !== updatePersonDto.identification ||
+      foundPerson.phone !== updatePersonDto.phone
+    ) {
       await this.checkUnique(updatePersonDto.identification ?? "", updatePersonDto.phone ?? "");
     }
-
     return this.txHost.tx
       .update(person)
       .set(updatePersonDto)

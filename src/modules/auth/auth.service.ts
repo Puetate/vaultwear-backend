@@ -64,15 +64,16 @@ export class AuthService {
     const createdPerson = await this.personService.create(person);
     const role = await this.roleModule.findByName("USER");
     if (!role || !createdPerson) {
-      throw new HttpException("Error al crear el usuario o la persona", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Error al crear el usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     const createUser: CreateUserWithPersonDto = {
-      email: user.email,
-      password: user.password,
-      person,
-      role: { roleID: role.roleID }
+      user: {
+        ...user,
+        roleID: role.roleID
+      },
+      person
     };
-    const createdUser = await this.userService.createWitPerson(createUser);
+    const createdUser = await this.userService.createWithPerson(createUser);
     if (!createdUser) {
       throw new HttpException("Error al crear el usuario", HttpStatus.INTERNAL_SERVER_ERROR);
     }
