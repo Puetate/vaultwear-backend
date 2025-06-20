@@ -53,7 +53,7 @@ export class AuthService {
       httpOnly: true,
       secure: envs.NODE_ENV === "production",
       sameSite: envs.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000 * 15
+      maxAge: 24 * 60 * 60 * 1000 * 15 // 15 days,
     });
     return {
       user,
