@@ -15,11 +15,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
   logger = new Logger();
 
   catch(exception: any, host: ArgumentsHost) {
-    this.logger.error(exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
     const { status, error } = this.getStatusAndError(exception);
     const errorResponse = { error };
+    this.logger.error({ exception, errorResponse });
     response.status(status).send(errorResponse);
   }
 
