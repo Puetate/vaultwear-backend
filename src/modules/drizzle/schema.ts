@@ -152,8 +152,33 @@ export const reward = pgTable("reward", {
   ...baseFields
 });
 
+export const rewardOrder = pgTable("rewardOrder", {
+  rewardOrderID: serial().primaryKey(),
+  rewardID: integer()
+    .references(() => reward.rewardID)
+    .notNull(),
+  orderID: integer()
+    .references(() => order.orderID)
+    .notNull(),
+  discount: integer().notNull(),
+  total: decimal().notNull(),
+  ...baseFields
+});
+
+export const rewardQr = pgTable("rewardQr", {
+  rewardQrID: serial().primaryKey(),
+  discount: integer().notNull(),
+  state: boolean().default(true),
+  qrJson: json(),
+  place: text().notNull(),
+  userID: integer()
+    .references(() => user.userID)
+    .notNull(),
+  ...baseFields
+});
+
 // Relations - ORM only
-export const personRelations = relations(person, ({ one, many }) => ({
+export const personRelations = relations(person, ({ one }) => ({
   user: one(user, {
     fields: [person.personID],
     references: [user.personID]
@@ -174,7 +199,9 @@ export const userRelations = relations(user, ({ one, many }) => ({
     references: [role.roleID]
   }),
   order: many(order),
-  loyaltyCard: many(loyaltyCard)
+  loyaltyCard: one(loyaltyCard),
+  reward: one(reward),
+  rewardQr: many(rewardQr)
 }));
 
 export const orderRelations = relations(order, ({ one, many }) => ({
@@ -182,7 +209,8 @@ export const orderRelations = relations(order, ({ one, many }) => ({
     fields: [order.userID],
     references: [user.userID]
   }),
-  orderDetail: many(orderDetail)
+  orderDetail: many(orderDetail),
+  rewardOrder: many(rewardOrder)
 }));
 
 export const orderDetailRelations = relations(orderDetail, ({ one }) => ({
@@ -216,5 +244,31 @@ export const giftBoxRelations = relations(giftBox, ({ one }) => ({
   loyaltyCard: one(loyaltyCard, {
     fields: [giftBox.loyaltyCardID],
     references: [loyaltyCard.loyaltyCardID]
+  })
+}));
+
+export const rewardRelations = relations(reward, ({ one, many }) => ({
+  user: one(user, {
+    fields: [reward.userID],
+    references: [user.userID]
+  }),
+  rewardOrder: many(rewardOrder)
+}));
+
+export const rewardOrderRelations = relations(rewardOrder, ({ one }) => ({
+  reward: one(reward, {
+    fields: [rewardOrder.rewardID],
+    references: [reward.rewardID]
+  }),
+  order: one(order, {
+    fields: [rewardOrder.orderID],
+    references: [order.orderID]
+  })
+}));
+
+export const rewardQrRelations = relations(rewardQr, ({ one }) => ({
+  user: one(user, {
+    fields: [rewardQr.userID],
+    references: [user.userID]
   })
 }));
